@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ServletUtility {
 
-	public void forward(HttpServletRequest request , HttpServletResponse response) throws IOException, ServletException {
+	public void forward(String string, HttpServletRequest request , HttpServletResponse response) throws IOException, ServletException {
 		
 	}
 	

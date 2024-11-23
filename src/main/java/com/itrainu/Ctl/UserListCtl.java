@@ -29,8 +29,6 @@ public class UserListCtl extends HttpServlet {
                 System.out.println("No data found.");
                 request.setAttribute("Userlist", null);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

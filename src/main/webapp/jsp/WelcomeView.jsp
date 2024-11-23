@@ -14,7 +14,21 @@
 <body class="body">
 
 <jsp:include page="/jsp/Header.jsp" />
-<h2>Welcome Student</h2>
+<div class=" welcomenote">
+   <%
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            // Redirect to login page if user is not logged in
+            response.sendRedirect("Login.jsp");
+        } else {
+    %> 
+        <h1>Welcome, <%= username %>!</h1>
+        <p>You have successfully logged in.</p>
+    <%
+        }
+    %>
+</div>
+
  <div class="logo" align="center">
         <img src="<%=request.getContextPath()%>/Img/welcomeViewlogo.png" alt="logo" align="middle" width="300" height="300" border="0" />
     </div>

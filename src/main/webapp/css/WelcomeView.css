@@ -1,6 +1,18 @@
 @charset "UTF-8";
 
-
+.welcomenote h1{
+	color: teal;
+	text-align: center;
+	font-weight: bold;
+	font-size: xx-large;
+	border: thick;
+}
+.welcomenote p{
+	color: #00ff00;
+	font-weight: bold;
+	border: thick;
+		text-align: center;
+}
 .h1 {
     background-color: orange;
     text-align: center;

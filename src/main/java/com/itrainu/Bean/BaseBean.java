@@ -8,19 +8,20 @@ import java.io.Serializable;
  * @autor Kirti Singh
  */
 public abstract class BaseBean implements Serializable, DropdownListBean, Comparable<BaseBean> {
-    protected int id;
+    protected long id;
     protected String createdBy;
 
     // Uncomment and add if needed
+ 
     // protected String modifiedBy;
     // protected Timestamp createdDatetime;
     // protected Timestamp modifiedDatetime;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

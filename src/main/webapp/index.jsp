@@ -25,16 +25,12 @@
    
     
     <div class="links"align="Center">
-        <a href="<%=DynamicView.LOG_IN%>">Login</a>
+        <a href="LoginCtl">Login</a>
         <a href="<%=DynamicView.REGISTER%>">Register</a>
     </div>
     
     <hr>
-    <h1 align="Center">
-        <font size="10px" color="red">
-            <a id="link" href="<%=DynamicView.WELCOME_CTL%>">Online Data System</a>
-        </font>
-    </h1>
+   
     <div class="footer">
         <jsp:include page="/jsp/Footer.jsp" />
     </div>

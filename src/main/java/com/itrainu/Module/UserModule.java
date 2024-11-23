@@ -1,118 +1,214 @@
 package com.itrainu.Module;
 
+import com.itrainu.Bean.UserBean;
+import com.itrainu.Exception.ApplicationException;
+import com.itrainu.util.JDBCDataSource;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.itrainu.Bean.TableBean;
-import com.itrainu.Bean.UserBean;
-import com.itrainu.util.JDBCDataSource;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserModule {
-    @SuppressWarnings("unused")
-    private Object bean;
+    private static Logger log = Logger.getLogger(UserModule.class.getName());
 
-    public Integer nextpk() throws Exception {
-        int pk = 0;
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(id) FROM employee");
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                pk = rs.getInt(1);
-                System.out.println("Max ID: " + pk);
-            }
-        }
-        return pk + 1;
-    }
-
-    public void add(UserBean bean) throws Exception {
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("INSERT INTO employee (id, Name, department, PASSWORD, MOBILE_NO, DOB, GENDER, LASTNAME, USER_LOCK, UNSUCCESSFULL_LOGIN, ROLE_ID, CREATED_BY, CONFIRM_PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            int pk = nextpk();
-            System.out.println("Name = " + bean.getName());
-            pstmt.setInt(1, pk);
-            pstmt.setString(2, bean.getName());
-            pstmt.setString(3, bean.getDepartment());
-            pstmt.setString(4, bean.getPassword());
-            pstmt.setString(5, bean.getMobileNo());
-            pstmt.setDate(6, new java.sql.Date(bean.getDob().getTime()));
-            pstmt.setString(7, bean.getGender());
-            pstmt.setString(8, bean.getLastName());
-            pstmt.setString(9, bean.getLock());
-            pstmt.setInt(10, bean.getUnsuccessfulLogin());
-            pstmt.setLong(11, bean.getRoleId());
-            pstmt.setString(12, bean.getCreatedBy());
-            pstmt.setString(13, bean.getConfirmPassword());
-            int i = pstmt.executeUpdate();
-            System.out.println("Data added successfully: " + i);
-        }
-    }
-
-    public UserBean findbypk(int id) throws Exception {
-        UserBean bean = null;
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM employee WHERE id = ?")) {
-            pstmt.setInt(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    bean = new UserBean();
-                    bean.setId(rs.getInt("id"));
-                    bean.setName(rs.getString("Name"));
-                    bean.setDepartment(rs.getString("department"));
-                    bean.setPassword(rs.getString("PASSWORD"));
-                    bean.setMobileNo(rs.getString("MOBILE_NO"));
-                    bean.setDob(rs.getDate("DOB"));
-                    bean.setGender(rs.getString("GENDER"));
-                    bean.setLastName(rs.getString("LASTNAME"));
-                    bean.setLock(rs.getString("USER_LOCK"));
-                    bean.setUnsuccessfulLogin(rs.getInt("UNSUCCESSFULL_LOGIN"));
-                    bean.setRoleId(rs.getLong("ROLE_ID"));
-                    bean.setCreatedBy(rs.getString("CREATED_BY"));
-                    bean.setConfirmPassword(rs.getString("CONFIRM_PASSWORD"));
-                }
-            }
-        }
-        return bean;
-    }
-
-    public void delete(int id) throws Exception {
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM employee WHERE id = ?")) {
-            pstmt.setInt(1, id);
-            int i = pstmt.executeUpdate();
-            System.out.println(i != 0 ? "Data deleted successfully: " + i : "Data delete unsuccessful: " + i);
-        }
-    }
-
-    public List<UserBean> search(UserBean bean) throws Exception {
-        List<UserBean> list = new ArrayList<>();
-        String sql = "SELECT * FROM employee WHERE Name LIKE ?";
+    // Method to add a new user
+    public void add(UserBean bean) throws ApplicationException {
+        log.info("Adding user: " + bean.getName());
+        String sql = "INSERT INTO employee (Name, department, PASSWORD, MOBILE_NO, DOB, GENDER, LASTNAME, USER_LOCK, UNSUCCESSFULL_LOGIN, ROLE_ID, CREATED_BY, CONFIRM_PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, "%" + bean.getName() + "%");
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    UserBean userBean = new UserBean();
-                    userBean.setId(rs.getInt("id"));
-                    userBean.setName(rs.getString("Name"));
-                    userBean.setDepartment(rs.getString("department"));
-                    userBean.setPassword(rs.getString("PASSWORD"));
-                    userBean.setMobileNo(rs.getString("MOBILE_NO"));
-                    userBean.setDob(rs.getDate("DOB"));
-                    userBean.setGender(rs.getString("GENDER"));
-                    userBean.setLastName(rs.getString("LASTNAME"));
-                    userBean.setLock(rs.getString("USER_LOCK"));
-                    userBean.setUnsuccessfulLogin(rs.getInt("UNSUCCESSFULL_LOGIN"));
-                    userBean.setRoleId(rs.getLong("ROLE_ID"));
-                    userBean.setCreatedBy(rs.getString("CREATED_BY"));
-                    userBean.setConfirmPassword(rs.getString("CONFIRM_PASSWORD"));
-                    list.add(userBean);
-                }
-            }
+            
+            pstmt.setString(1, bean.getName());
+            pstmt.setString(2, bean.getDepartment());
+            pstmt.setString(3, bean.getPassword());
+            pstmt.setString(4, bean.getMobileNo());
+            pstmt.setDate(5, new java.sql.Date(bean.getDob().getTime()));
+            pstmt.setString(6, bean.getGender());
+            pstmt.setString(7, bean.getLastName());
+            pstmt.setString(8, bean.getLock());
+            pstmt.setInt(9, bean.getUnsuccessfulLogin());
+            pstmt.setLong(10, bean.getRoleId());
+            pstmt.setString(11, bean.getCreatedBy());
+            pstmt.setString(12, bean.getConfirmPassword());
+            
+            pstmt.executeUpdate();
+            log.info("User added successfully!");
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "Database error occurred while adding user.", e);
+            throw new ApplicationException("Database error occurred while adding user.", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error occurred while adding user.", e);
+            throw new ApplicationException(e);
         }
-        System.out.println("User list size: " + list.size());
-        return list;
+    }
+
+    // Method to authenticate user
+    public UserBean authenticate(String login, String password) throws ApplicationException {
+        log.info("Authenticating user: " + login);
+        String sql = "SELECT * FROM employee WHERE NAME = ? AND PASSWORD = ?";
+        UserBean user = null;
+        
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, login);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                user = new UserBean();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("Name"));
+                user.setDepartment(rs.getString("department"));
+                user.setPassword(rs.getString("PASSWORD"));
+                user.setMobileNo(rs.getString("MOBILE_NO"));
+                user.setDob(rs.getDate("DOB"));
+                user.setGender(rs.getString("GENDER"));
+                user.setLastName(rs.getString("LASTNAME"));
+                user.setLock(rs.getString("USER_LOCK"));
+                user.setUnsuccessfulLogin(rs.getInt("UNSUCCESSFULL_LOGIN"));
+                user.setRoleId(rs.getLong("ROLE_ID"));
+                user.setCreatedBy(rs.getString("CREATED_BY"));
+                user.setConfirmPassword(rs.getString("CONFIRM_PASSWORD"));
+            } else {
+                throw new ApplicationException("Invalid username or password");
+            }
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "Database error occurred during authentication.", e);
+            throw new ApplicationException("Database error occurred during authentication.", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error occurred during authentication.", e);
+            throw new ApplicationException(e);
+        }
+        
+        return user;
+    }
+
+    // Method to find user by primary key (ID)
+    public UserBean findByPk(int id) throws ApplicationException {
+        log.info("Finding user by ID: " + id);
+        String sql = "SELECT * FROM employee WHERE id = ?";
+        UserBean user = null;
+        
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                user = new UserBean();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("Name"));
+                user.setDepartment(rs.getString("department"));
+                user.setPassword(rs.getString("PASSWORD"));
+                user.setMobileNo(rs.getString("MOBILE_NO"));
+                user.setDob(rs.getDate("DOB"));
+                user.setGender(rs.getString("GENDER"));
+                user.setLastName(rs.getString("LASTNAME"));
+                user.setLock(rs.getString("USER_LOCK"));
+                user.setUnsuccessfulLogin(rs.getInt("UNSUCCESSFULL_LOGIN"));
+                user.setRoleId(rs.getLong("ROLE_ID"));
+                user.setCreatedBy(rs.getString("CREATED_BY"));
+                user.setConfirmPassword(rs.getString("CONFIRM_PASSWORD"));
+            } else {
+                throw new ApplicationException("User not found with ID: " + id);
+            }
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "Database error occurred while finding user by ID.", e);
+            throw new ApplicationException("Database error occurred while finding user by ID.", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error occurred while finding user by ID.", e);
+            throw new ApplicationException(e);
+        }
+        
+        return user;
+    }
+
+    // Method to delete user by primary key (ID)
+    public void delete(int id) throws ApplicationException {
+        log.info("Deleting user with ID: " + id);
+        String sql = "DELETE FROM employee WHERE id = ?";
+        
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, id);
+            int rowsAffected = pstmt.executeUpdate();
+            
+            if (rowsAffected == 0) {
+                throw new ApplicationException("User with ID " + id + " not found.");
+            }
+            log.info("User deleted successfully!");
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "Database error occurred while deleting user.", e);
+            throw new ApplicationException("Database error occurred while deleting user.", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error occurred while deleting user.", e);
+            throw new ApplicationException(e);
+        }
+    }
+
+    // Method to search users (overloaded)
+    public List<UserBean> search(UserBean bean) throws ApplicationException {
+        log.info("Searching for user with details: " + bean);
+        List<UserBean> users = new ArrayList<>();
+        
+        String sql = "SELECT * FROM employee WHERE 1=1";
+        
+        if (bean.getName() != null && !bean.getName().isEmpty()) {
+            sql += " AND name LIKE ?";
+        }
+        if (bean.getDepartment() != null && !bean.getDepartment().isEmpty()) {
+            sql += " AND department LIKE ?";
+        }
+        
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            int paramIndex = 1;
+            if (bean.getName() != null && !bean.getName().isEmpty()) {
+                pstmt.setString(paramIndex++, "%" + bean.getName() + "%");
+            }
+            if (bean.getDepartment() != null && !bean.getDepartment().isEmpty()) {
+                pstmt.setString(paramIndex++, "%" + bean.getDepartment() + "%");
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                UserBean user = new UserBean();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("Name"));
+                user.setDepartment(rs.getString("department"));
+                user.setPassword(rs.getString("PASSWORD"));
+                user.setMobileNo(rs.getString("MOBILE_NO"));
+                user.setDob(rs.getDate("DOB"));
+                user.setGender(rs.getString("GENDER"));
+                user.setLastName(rs.getString("LASTNAME"));
+                user.setLock(rs.getString("USER_LOCK"));
+                user.setUnsuccessfulLogin(rs.getInt("UNSUCCESSFULL_LOGIN"));
+                user.setRoleId(rs.getLong("ROLE_ID"));
+                user.setCreatedBy(rs.getString("CREATED_BY"));
+                user.setConfirmPassword(rs.getString("CONFIRM_PASSWORD"));
+                users.add(user);
+            }
+            if (users.isEmpty()) {
+                throw new ApplicationException("No users found with the given search criteria.");
+            }
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "Database error occurred while searching for users.", e);
+            throw new ApplicationException("Database error occurred while searching for users.", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error occurred while searching for users.", e);
+            throw new ApplicationException(e);
+        }
+        
+        return users;
     }
 }
